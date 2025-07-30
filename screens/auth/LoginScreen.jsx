@@ -12,7 +12,7 @@ import {
     Animated,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { AuthService } from '../services/AuthService';
+import { AuthService } from '../../services/AuthService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
