@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from './HomeScreen';
 import AddScreen from './AddScreen';
 import SearchScreen from './SearchScreen';
-import CustomTabBar from '../components/CustomTabBar';
+import CustomTabBar from '../../components/CustomTabBar';
 import CalendarScreen from './CalendarScreen';
 import SettingsScreen from './SettingsScreen';
 
