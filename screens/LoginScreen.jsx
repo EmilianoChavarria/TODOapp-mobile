@@ -12,10 +12,14 @@ import {
     Animated,
 } from 'react-native';
 import TypeWriter from '../components/TypeWriter';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
 
     // Animated value para opacidad
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -65,17 +69,29 @@ export default function LoginScreen({ navigation }) {
                             />
                         </View>
 
-                        <View>
+                        <View style={{ position: 'relative' }}>
                             <Text style={styles.inputName}>Contraseña:</Text>
                             <TextInput
                                 style={styles.input}
                                 placeholder="Contraseña"
                                 placeholderTextColor="#aaa"
-                                secureTextEntry
+                                secureTextEntry={!showPassword}
                                 value={password}
                                 onChangeText={setPassword}
                             />
+                            <TouchableOpacity
+                                onPress={() => setShowPassword(!showPassword)}
+                                style={styles.eyeIcon}
+                            >
+                                <Ionicons
+                                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                                    size={24}
+                                    color="#999"
+                                />
+                            </TouchableOpacity>
                         </View>
+
+
 
                         <TouchableOpacity style={styles.button} onPress={handleLogin}>
                             <Text style={styles.buttonText}>Entrar</Text>
@@ -172,5 +188,11 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginTop: 15,
         fontFamily: 'GoogleSans-Medium',
+    },
+    eyeIcon: {
+        position: 'absolute',
+        right: 15,
+        top: 42, // ajusta según tu padding o tamaño
+        zIndex: 1,
     },
 });
