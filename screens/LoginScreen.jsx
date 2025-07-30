@@ -11,8 +11,9 @@ import {
     Platform,
     Animated,
 } from 'react-native';
-import TypeWriter from '../components/TypeWriter';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { AuthService } from '../services/AuthService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function LoginScreen({ navigation }) {
@@ -24,7 +25,10 @@ export default function LoginScreen({ navigation }) {
     // Animated value para opacidad
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
+
+
     useEffect(() => {
+        
         Animated.timing(fadeAnim, {
             toValue: 1,
             duration: 1200,
@@ -34,7 +38,26 @@ export default function LoginScreen({ navigation }) {
 
     const handleLogin = () => {
         if (email && password) {
-            navigation.replace('Home');
+
+            const login = async () => {
+                try {
+                    const response = await AuthService.login(email, password);
+
+                    if (response.success) {
+                        await AsyncStorage.setItem('data', JSON.stringify(response.data));
+                        console.log("🚀 ~ login ~ response.data:", response.data)
+                        navigation.replace('Home');
+                    } else {
+                        Alert.alert('Error', response.detalles || 'Credenciales incorrectas');
+                    }
+                } catch (error) {
+                    console.error('Error en el inicio de sesión:', error);
+                }
+            }
+            login();
+
+
+            // navigation.replace('Home');
         } else {
             Alert.alert('Campos vacíos', 'Por favor, completa todos los campos.');
         }

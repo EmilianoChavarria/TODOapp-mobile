@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Button, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 export default function WelcomeScreen({ navigation }) {
+    
     return (
         <View style={styles.container}>
             <Text style={styles.titleSmall}>TODO APP</Text>
