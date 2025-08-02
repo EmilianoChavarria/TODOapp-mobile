@@ -6,7 +6,7 @@ export default function WelcomeScreen({ navigation }) {
     return (
         <View style={styles.container}>
             <Text style={styles.titleSmall}>TODO APP</Text>
-            <Image source={require("../assets/images/Task-amico.png")} style={{ width: 300, height: 300 }} />
+            <Image source={require("../../assets/images/Task-amico.png")} style={{ width: 300, height: 300 }} />
             <View>
                 <Text style={styles.title}>Organiza tu día, conquista tus <Text style={styles.titleBlue}>metas.</Text> </Text>
                 <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>

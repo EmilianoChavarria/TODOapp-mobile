@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from './HomeScreen';
-import AddScreen from './AddScreen';
-import SearchScreen from './SearchScreen';
+import HomeScreen from '../home/HomeScreen';
+import AddScreen from '../home/AddScreen';
+import SearchScreen from '../search/SearchScreen';
 import CustomTabBar from '../../components/CustomTabBar';
-import CalendarScreen from './CalendarScreen';
-import SettingsScreen from './SettingsScreen';
+import CalendarScreen from '../home/CalendarScreen';
+import SettingsScreen from '../home/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 

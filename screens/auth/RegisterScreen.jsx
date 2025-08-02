@@ -12,6 +12,8 @@ import {
     Animated,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { AuthService } from '../../services/AuthService';
+import { useToast } from '../../components/ToastContext';
 
 export default function RegisterScreen({ navigation }) {
     const [name, setName] = useState('');
@@ -29,16 +31,38 @@ export default function RegisterScreen({ navigation }) {
         }).start();
     }, []);
 
+    // Función para validar si el formulario es válido
+    const isFormValid = () => {
+        // Validar que todos los campos tengan contenido
+        const isNameValid = name.trim().length > 0;
+        const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        const isPasswordValid = password.length >= 6;
+
+        return isNameValid && isEmailValid && isPasswordValid;
+    };
+
+    const { showToast } = useToast();
     const handleRegister = () => {
-        if (!name || !email || !password ) {
-            Alert.alert('Campos vacíos', 'Por favor, completa todos los campos.');
+        if (!isFormValid()) {
+            // Esto no debería ocurrir porque el botón estará deshabilitado
             return;
         }
 
+        const register = async () => {
+            try {
+                const response = await AuthService.register(name, email, password);
+                // Alert.alert('Registro exitoso', '¡Tu cuenta ha sido creada!');
+                showToast({ message: '¡Tu cuenta ha sido creada!', type: 'success' });
+                navigation.replace('Login');
+            } catch (error) {
+                console.error('Error en el registro:', error);
+                // Alert.alert('Error', error.message || 'Ocurrió un error al registrar usuario');
+                showToast({ message: error.message || 'Error al registrar usuario', type: 'error' });
 
-        // Aquí iría la lógica de API para registrar usuario
-        Alert.alert('Registro exitoso', '¡Tu cuenta ha sido creada!');
-        navigation.replace('Home'); // O puedes redirigir al login
+            }
+        };
+
+        register();
     };
 
     return (
@@ -77,6 +101,7 @@ export default function RegisterScreen({ navigation }) {
                                 value={email}
                                 onChangeText={setEmail}
                                 keyboardType="email-address"
+                                autoCapitalize="none"
                             />
                         </View>
 
@@ -84,8 +109,6 @@ export default function RegisterScreen({ navigation }) {
                             <Text style={styles.inputName}>Contraseña:</Text>
                             <TextInput
                                 style={styles.input}
-                                placeholder="Contraseña"
-                                placeholderTextColor="#aaa"
                                 secureTextEntry={!showPassword}
                                 value={password}
                                 onChangeText={setPassword}
@@ -102,7 +125,11 @@ export default function RegisterScreen({ navigation }) {
                             </TouchableOpacity>
                         </View>
 
-                        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+                        <TouchableOpacity
+                            style={[styles.button, !isFormValid() && styles.buttonDisabled]}
+                            onPress={handleRegister}
+                            disabled={!isFormValid()}
+                        >
                             <Text style={styles.buttonText}>Registrarme</Text>
                         </TouchableOpacity>
 
@@ -186,6 +213,10 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: 'center',
         marginTop: 10,
+    },
+    buttonDisabled: {
+        backgroundColor: '#a0c0f8',
+        opacity: 0.7,
     },
     buttonText: {
         color: '#fff',
