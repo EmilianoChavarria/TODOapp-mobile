@@ -30,11 +30,11 @@ export default function CustomTabBar({ state, descriptors, navigation }) {
 
                 // Íconos para las rutas
                 const iconName = {
-                    Home: 'home-outline',
+                    Inicio: 'home-outline',
                     Calendar: 'calendar-outline',
                     Add: 'add-circle-outline',
-                    Search: 'search-outline',
-                    Settings: 'settings-outline',
+                    Buscar: 'search-outline',
+                    Perfil: 'person-circle-outline',
                 }[route.name];
 
                 return (
@@ -45,7 +45,7 @@ export default function CustomTabBar({ state, descriptors, navigation }) {
                     >
                         <Ionicons
                             name={iconName}
-                            size={route.name === 'Add' ? 48 : 28}
+                            size={route.name === 'Add' ? 48 : 24}
                             color={route.name === 'Add' ? '#327efb' : isFocused ? '#327efb' : '#999'}
                             style={route.name === 'Add' && styles.addButton}
                         />
@@ -65,8 +65,8 @@ export default function CustomTabBar({ state, descriptors, navigation }) {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
+        
+        paddingHorizontal: 10,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         marginBottom: 20,
@@ -80,6 +80,6 @@ const styles = StyleSheet.create({
         padding: 5,
     },
     addButton: {
-        marginBottom: 10,
+        marginBottom: 15,
     },
 });

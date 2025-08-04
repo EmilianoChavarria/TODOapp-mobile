@@ -12,11 +12,11 @@ const Tab = createBottomTabNavigator();
 export default function MainTabs() {
     return (
         <Tab.Navigator tabBar={(props) => <CustomTabBar {...props} />} screenOptions={{ headerShown: false }}>
-            <Tab.Screen name="Home" component={HomeScreen} />
+            <Tab.Screen name="Inicio" component={HomeScreen} />
             <Tab.Screen name="Calendar" component={CalendarScreen} />
             <Tab.Screen name="Add" component={AddScreen} />
-            <Tab.Screen name="Search" component={SearchScreen} />
-            <Tab.Screen name="Settings" component={SettingsScreen} />
+            <Tab.Screen name="Buscar" component={SearchScreen} />
+            <Tab.Screen name="Perfil" component={SettingsScreen} />
         </Tab.Navigator>
     );
 }
