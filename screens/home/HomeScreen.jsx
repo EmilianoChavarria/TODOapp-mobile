@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView as MainScrollView, TouchableOpacity, ScrollView } from 'react-native';
 import CategoryCard from '../../components/categories/CategoryCard';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -8,6 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
+
+  const [name, setName] = useState('');
 
   const deleteAsyncStorage = async () => {
     try {
@@ -38,7 +40,7 @@ export default function HomeScreen() {
     }
   ];
 
-  const activities = [
+  const [activities, setActivities] = useState([
     {
       id: 1,
       title: "Revisar informe mensual",
@@ -79,7 +81,37 @@ export default function HomeScreen() {
       time: "11:00 AM",
       completed: true
     }
-  ];
+  ]);
+
+  const toggleActivity = (id) => {
+    setActivities(prevActivities =>
+      prevActivities.map(activity =>
+        activity.id === id
+          ? { ...activity, completed: !activity.completed }
+          : activity
+      )
+    );
+
+    // Aquí podrías también guardar el cambio en tu API o AsyncStorage
+  };
+
+  useEffect(() => {
+    const getUserName = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('data');
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          setName(parsedData.nombre.split(' ')[0] || 'Usuario'
+          );
+        }
+      } catch (error) {
+        console.error('Error al obtener datos:', error);
+      }
+    };
+
+    getUserName();
+  }, []);
+
 
   return (
     <MainScrollView
@@ -88,11 +120,11 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
 
-      
+
 
       {/* Encabezado */}
       <View style={styles.header}>
-        <Text style={styles.title}>Hola, Juan!</Text>
+        <Text style={styles.title}>Hola, {name}!</Text>
       </View>
 
       {/* <Text onPress={
@@ -129,6 +161,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Sección actividades */}
+      {/* Sección actividades */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>TAREAS PARA HOY</Text>
         <View>
@@ -139,18 +172,19 @@ export default function HomeScreen() {
               color={activity.color}
               time={activity.time}
               completed={activity.completed}
+              onToggle={() => toggleActivity(activity.id)} // Pasar la función de toggle
             />
           ))}
         </View>
         <TouchableOpacity
           style={styles.viewMoreButton}
-        // onPress={() => navigation.navigate('Activities')}
         >
           <Text style={styles.viewMoreText}>Ver más actividades</Text>
           <Ionicons name="arrow-redo-outline" size={20} color="#327efb" />
         </TouchableOpacity>
       </View>
     </MainScrollView>
+
   );
 }
 
@@ -158,7 +192,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
   },
-  
+
   mainContentContainer: {
     paddingTop: 60,
     paddingLeft: 15,

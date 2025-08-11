@@ -5,13 +5,18 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 export default function ActivityCard({
     title = "Actividad de ejemplo",
     color = "#3251a2",
-    completed = false
+    completed = false,
+    onToggle = () => {} // Nueva prop para manejar el toggle
 }) {
     return (
         <TouchableOpacity
-            style={styles.card}
+            style={[styles.card, completed && styles.completedCard]}
+            onPress={onToggle} // Manejar el toggle al presionar toda la tarjeta
         >
-            <View style={[styles.checkboxContainer, { borderColor: color }]}>
+            <TouchableOpacity 
+                style={[styles.checkboxContainer, { borderColor: color }]}
+                onPress={onToggle} // También permitir toggle solo con el checkbox
+            >
                 {completed && (
                     <Ionicons
                         name="checkmark"
@@ -20,7 +25,7 @@ export default function ActivityCard({
                         style={styles.checkIcon}
                     />
                 )}
-            </View>
+            </TouchableOpacity>
             <Text style={[
                 styles.title,
                 completed && styles.completedTitle
@@ -60,13 +65,13 @@ const styles = StyleSheet.create({
         flexShrink: 1,
     },
     completedTitle: {
-        color: '#888', // Gris medio
+        color: '#888',
         textDecorationLine: 'line-through',
         textDecorationStyle: 'solid',
         textDecorationColor: '#888',
-        opacity: 0.7, // Ligera transparencia
+        opacity: 0.7,
     },
     completedCard: {
-        backgroundColor: '#f9f9f9', // Fondo ligeramente gris para cards completadas
+        backgroundColor: '#f9f9f9',
     }
 });
