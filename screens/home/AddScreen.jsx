@@ -20,6 +20,8 @@ export default function AddScreen() {
         categoria_id: null,
         categoria_nombre: ''
     });
+    const { showToast } = useToast();
+
 
     const route = useRoute();
     // Obtener los parámetros de navegación

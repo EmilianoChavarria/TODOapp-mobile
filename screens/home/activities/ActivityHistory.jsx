@@ -33,15 +33,15 @@ export default function ActivityHistory() {
             const id = await getUserData();
             if (id) {
                 const response = await ActivityService.getCompletedByUser(id);
-                
+
                 const activities = Array.isArray(response) ? response : [];
-                
+
                 setCompletedActivities(activities.map(act => ({
                     id: act.id,
                     title: act.titulo,
                     category: act.categoria_id,
                     color: getCategoryColor(act.categoria_id),
-                    time: act.fecha_completado ? 
+                    time: act.fecha_completado ?
                         new Date(act.fecha_completado).toLocaleDateString() : 'Sin fecha',
                     completed: true
                 })));
@@ -70,9 +70,9 @@ export default function ActivityHistory() {
                     text: 'Cancelar',
                     style: 'cancel'
                 },
-                { 
-                    text: 'Recuperar', 
-                    onPress: () => recoverActivity(activityId) 
+                {
+                    text: 'Recuperar',
+                    onPress: () => recoverActivity(activityId)
                 }
             ]
         );
@@ -95,13 +95,13 @@ export default function ActivityHistory() {
             await getUserData();
             await fetchCompletedActivities();
         };
-        
+
         loadData();
-        
+
         const unsubscribe = navigation.addListener('focus', () => {
             fetchCompletedActivities();
         });
-        
+
         return unsubscribe;
     }, [navigation]);
 
@@ -128,18 +128,15 @@ export default function ActivityHistory() {
                         completedActivities.map(activity => (
                             <ActivityCard
                                 key={activity.id}
-                                title={activity.title}
-                                color={activity.color}
-                                time={`Completado: ${activity.time}`}
-                                completed={activity.completed}
+                                activity={activity}  // pasar el objeto completo
                                 onToggle={() => handleRecoverActivity(activity.id)}
-                                toggleText="Recuperar"
                             />
                         ))
                     ) : (
                         <Text style={styles.emptyText}>No hay actividades completadas</Text>
                     )}
                 </View>
+
             </ScrollView>
         </View>
     );
