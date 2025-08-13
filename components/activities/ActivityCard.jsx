@@ -1,23 +1,25 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function ActivityCard({
-    title = "Actividad de ejemplo",
-    color = "#3251a2",
-    completed = false,
-    onToggle = () => {} // Nueva prop para manejar el toggle
+    activity, // el objeto completo que recibes desde HomeScreen
+    onToggle = () => {}
 }) {
+    const navigation = useNavigation();
+    const { id: activityId, title, color = "#3251a2", completed = false } = activity;
+
     return (
         <TouchableOpacity
             style={[styles.card, completed && styles.completedCard]}
             onPress={() => {
-              
+                navigation.navigate('Activity', { activity }); // aquí mandas todo
             }} 
         >
             <TouchableOpacity 
                 style={[styles.checkboxContainer, { borderColor: color }]}
-                onPress={onToggle} // También permitir toggle solo con el checkbox
+                onPress={onToggle}
             >
                 {completed && (
                     <Ionicons
@@ -36,7 +38,8 @@ export default function ActivityCard({
             </Text>
         </TouchableOpacity>
     );
-};
+}
+
 
 const styles = StyleSheet.create({
     card: {

@@ -1,45 +1,34 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export default function CategoryRow({ category }) {
+export default function CategoryRow({ category, onPress }) {
     return (
-        <View style={styles.container}>
-            {/* Bolita de color */}
-            <View style={[styles.colorDot, { backgroundColor: category.color }]} />
-
-            {/* Nombre de la categoría */}
+        <TouchableOpacity style={styles.row} onPress={onPress}>
+            <View style={[styles.colorIndicator, { backgroundColor: category.color || '#327efb' }]} />
             <Text style={styles.name}>{category.nombre}</Text>
-
-            {/* Count de tareas */}
-            <Text style={styles.count}>{category.count}</Text>
-        </View>
+            <Text style={{ color: '#999', fontSize: 14 }}>{category.count || 0} actividades</Text>
+        </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    row: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 15,
+        paddingVertical: 15,
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
     },
-    colorDot: {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        marginRight: 10,
+    colorIndicator: {
+        width: 15,
+        height: 15,
+        borderRadius: 100,
+        marginRight: 15,
     },
     name: {
-        flex: 1,
-        fontSize: 20,
+        fontSize: 16,
         color: '#333',
-        fontFamily: 'GoogleSans-Regular',
-    },
-    count: {
-        fontSize: 18,
-        fontFamily: 'GoogleSans-Medium',
-        color: '#666',
+        flex: 1,
     },
 });

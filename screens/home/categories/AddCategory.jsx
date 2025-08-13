@@ -45,20 +45,29 @@ export default function CategoriesScreen() {
     const handleSave = async () => {
         if (!nombre || !selectedColor) {
             showToast({ message: 'Debes ingresar un nombre y seleccionar un color', type: 'error' });
-            // alert("Debes ingresar un nombre y seleccionar un color");
             return;
         }
-
+    
         const nuevaCategoria = {
             nombre,
             color: selectedColor,
-            usuarioId: userId 
+            usuarioId: userId
         };
-
-        console.log("Datos a guardar:", nuevaCategoria);
-        // Aquí llamas a tu servicio para guardar:
-        // await CategoryService.create(nuevaCategoria);
+    
+        try {
+            console.log("Datos a guardar:", nuevaCategoria);
+            await CategoryService.save(nuevaCategoria);
+    
+            showToast({ message: 'Categoría creada correctamente', type: 'success' });
+    
+            // Redirigir a la lista de categorías
+            navigation.navigate("Categories");
+        } catch (error) {
+            console.error('Error al crear categoría:', error);
+            showToast({ message: 'Error al crear la categoría', type: 'error' });
+        }
     };
+    
 
     useEffect(() => {
         getUserData();

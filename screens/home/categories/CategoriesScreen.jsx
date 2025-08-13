@@ -57,13 +57,25 @@ export default function CategoriesScreen() {
 
                     <View style={styles.catContainer}>
                         {categories.map((category) => (
-                            <CategoryRow key={category.id} category={category} />
+                            <CategoryRow
+                                key={category.id}
+                                category={category}
+                                onPress={() =>
+                                    navigation.navigate('CategoryScreen', {
+                                        categoryId: category.id,
+                                        categoryName: category.nombre,
+                                        categoryColor: category.color || '#327efb',
+                                        categoryCount: category.count || 0
+                                    })
+                                }
+                            />
                         ))}
                     </View>
 
+
                     <View>
                         <TouchableOpacity>
-                            <Text style={styles.button }
+                            <Text style={styles.button}
                                 onPress={() => navigation.navigate('AddCategory')}
                             >
                                 Crear nueva categoría
@@ -106,11 +118,11 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         paddingHorizontal: 15,
     },
-    button: { 
-        color: '#327efb', 
-        fontSize: 18, 
-        textAlign: 'center', 
-        marginTop: 20 
+    button: {
+        color: '#327efb',
+        fontSize: 18,
+        textAlign: 'center',
+        marginTop: 20
     }
 
 });

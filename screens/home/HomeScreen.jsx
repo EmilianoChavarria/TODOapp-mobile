@@ -17,9 +17,9 @@ export default function HomeScreen() {
 
   const [categories, setCategories] = useState([]);
 
-  
 
-  
+
+
 
   const getUserData = async () => {
     try {
@@ -48,6 +48,7 @@ export default function HomeScreen() {
             activityCount: cat.count || 0,
             color: cat.color || '#6200ee'
           })));
+          console.log('Categorías obtenidas:', response);
         }
       }
     } catch (error) {
@@ -60,23 +61,24 @@ export default function HomeScreen() {
       const id = await getUserData();
       if (id) {
         const response = await ActivityService.getToday(id);
-        
-        const todayActivities = Array.isArray(response) 
-          ? response 
-          : response.mensaje 
-            ? [] 
-            : []; 
-  
+
+        const todayActivities = Array.isArray(response)
+          ? response
+          : response.mensaje
+            ? []
+            : [];
+
         setActivities(todayActivities.map(act => ({
-          id: act.id,
+          ...act, // Esto trae todo: id, titulo, descripcion, fecha_vencimiento, etc.
           title: act.titulo,
           category: act.categoria_id,
-          color: categories.find(cat => cat.name === act.categoria_id)?.color || '#6200ee',
-          time: act.fecha_vencimiento 
+          color: act.color || '#6200ee',
+          time: act.fecha_vencimiento
             ? new Date(act.fecha_vencimiento).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             : 'Sin hora',
           completed: act.estado === 'completada'
         })));
+
       }
     } catch (error) {
       console.error('Error al obtener actividades de hoy:', error);
@@ -96,10 +98,10 @@ export default function HomeScreen() {
             : activity
         )
       );
-      
+
       // Llamar al servicio para actualizar en el backend
       await ActivityService.toggleState(id);
-      
+
       // Opcional: recargar datos para asegurar sincronización
       // fetchTodayActivities();
     } catch (error) {
@@ -121,14 +123,14 @@ export default function HomeScreen() {
       fetchCategories();
       await fetchTodayActivities();
     };
-    
+
     loadData();
-    
+
     // Recargar al enfocar la pantalla
     const unsubscribe = navigation.addListener('focus', () => {
       fetchTodayActivities();
     });
-    
+
     return unsubscribe;
   }, [navigation]);
 
@@ -161,7 +163,7 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}
         >
-          {categories.map((category, index) => (
+          {categories.slice(0, 3).map((category, index) => (
             <CategoryCard
               key={index}
               category={category}
@@ -177,6 +179,7 @@ export default function HomeScreen() {
             <Ionicons name="chevron-forward" size={20} color="#327efb" />
           </TouchableOpacity>
         </ScrollView>
+
       </View>
 
       {/* Sección actividades */}
@@ -187,13 +190,11 @@ export default function HomeScreen() {
             activities.map(activity => (
               <ActivityCard
                 key={activity.id}
-                title={activity.title}
-                color={activity.color}
-                time={activity.time}
-                completed={activity.completed}
+                activity={activity} // ahora sí le pasas el objeto entero
                 onToggle={() => toggleActivity(activity.id)}
               />
             ))
+
           ) : (
             <Text style={styles.noActivitiesText}>No hay tareas para hoy</Text>
           )}

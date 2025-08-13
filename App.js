@@ -13,6 +13,8 @@ import CategoriesScreen from './screens/home/categories/CategoriesScreen';
 import AddCategory from './screens/home/categories/AddCategory';
 import CategoryScreen from './screens/home/categories/CategoryScreen';
 import ActivityHistory from './screens/home/activities/ActivityHistory';
+import ActivityScreen from './components/activities/ActivityScreen';
+import AddScreen from './screens/home/AddScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,8 +45,11 @@ export default function App() {
           <Stack.Screen name="Home" component={MainTabs} />
           <Stack.Screen name="Categories" component={CategoriesScreen} />
           <Stack.Screen name="AddCategory" component={AddCategory} />
+          <Stack.Screen name="Add" component={AddScreen} />
           <Stack.Screen name="CategoryScreen" component={CategoryScreen} />
           <Stack.Screen name="ActivityHistory" component={ActivityHistory} />
+          <Stack.Screen name="Activity" component={ActivityScreen} />
+
         </Stack.Navigator>
       </NavigationContainer>
     </ToastProvider>

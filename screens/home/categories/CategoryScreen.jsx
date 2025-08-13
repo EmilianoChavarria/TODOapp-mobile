@@ -9,14 +9,14 @@ import { ActivityService } from "../../../services/ActivityService";
 export default function CategoryScreen() {
     const navigation = useNavigation();
     const route = useRoute();
-    
+
     // Obtener parámetros de navegación
-    const { 
+    const {
         categoryId,
-        categoryName = 'Categoría', 
+        categoryName = 'Categoría',
         categoryColor = '#327efb',
     } = route.params || {};
-    
+
     const [activities, setActivities] = useState([]);
     const [loading, setLoading] = useState(true);
     const [userId, setUserId] = useState(null);
@@ -43,17 +43,17 @@ export default function CategoryScreen() {
             if (id && categoryId) {
                 const response = await ActivityService.getByCategory(categoryId);
                 console.log(`Actividades de la categoría ${categoryId}:`, response);
-                
-                const categoryActivities = Array.isArray(response) 
-                    ? response 
+
+                const categoryActivities = Array.isArray(response)
+                    ? response
                     : [];
-                
+
                 setActivities(categoryActivities.map(act => ({
                     id: act.id,
                     title: act.titulo,
                     category: act.categoria_id,
                     color: categoryColor, // Usamos el color de la categoría
-                    time: act.fecha_vencimiento 
+                    time: act.fecha_vencimiento
                         ? new Date(act.fecha_vencimiento).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         : 'Sin hora',
                     completed: act.estado === 'completada'
@@ -77,10 +77,10 @@ export default function CategoryScreen() {
                         : activity
                 )
             );
-            
+
             // Llamar al servicio para actualizar en el backend
             await ActivityService.toggleState(id);
-            
+
         } catch (error) {
             console.error('Error al cambiar estado:', error);
             // Revertir cambios si falla
@@ -100,14 +100,14 @@ export default function CategoryScreen() {
             await getUserData();
             await fetchCategoryActivities();
         };
-        
+
         loadData();
-        
+
         // Recargar al enfocar la pantalla
         const unsubscribe = navigation.addListener('focus', () => {
             fetchCategoryActivities();
         });
-        
+
         return unsubscribe;
     }, [navigation, categoryId]);
 
@@ -132,19 +132,21 @@ export default function CategoryScreen() {
                             <Text style={styles.activityCount}>{activities.length} actividades</Text>
                         </View>
                     </View>
-                    
+
                     {/* Lista de actividades */}
                     <View style={styles.activitiesSection}>
                         {activities.length > 0 ? (
                             activities.map(activity => (
                                 <ActivityCard
                                     key={activity.id}
+                                    activity={activity}        // <-- pasamos todo el objeto
                                     title={activity.title}
                                     color={activity.color}
                                     time={activity.time}
                                     completed={activity.completed}
                                     onToggle={() => toggleActivity(activity.id)}
                                 />
+
                             ))
                         ) : (
                             <Text style={styles.noActivitiesText}>No hay actividades en esta categoría</Text>
@@ -157,7 +159,10 @@ export default function CategoryScreen() {
             <TouchableOpacity
                 style={[styles.floatingButton, { backgroundColor: categoryColor }]}
                 onPress={() => {
-                    navigation.navigate('Add');
+                    navigation.navigate('Add', {
+                        categoryId: categoryId, 
+                        categoryName: categoryName 
+                    });
                 }}
             >
                 <Ionicons name="add" size={30} color="white" />

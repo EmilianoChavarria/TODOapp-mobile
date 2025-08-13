@@ -3,7 +3,11 @@ import React, { useState, useEffect } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from "@react-native-picker/picker";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { ActivityService } from '../../services/ActivityService';
+import { useToast } from '../../components/ToastContext';
+import { CategoryService } from "../../services/CategoryService";
+
 
 export default function AddScreen() {
     const navigation = useNavigation();
@@ -17,6 +21,10 @@ export default function AddScreen() {
         categoria_nombre: ''
     });
 
+    const route = useRoute();
+    // Obtener los parámetros de navegación
+    const { categoryId, categoryName } = route.params || {};
+
     const [showDatePicker, setShowDatePicker] = useState({
         vencimiento: false
     });
@@ -26,11 +34,7 @@ export default function AddScreen() {
     const [showStatusPicker, setShowStatusPicker] = useState(false);
 
     // Datos de ejemplo
-    const [categorias, setCategorias] = useState([
-        { id: 1, nombre: "Trabajo", color: "#FF5733" },
-        { id: 2, nombre: "Personal", color: "#33FF57" },
-        { id: 3, nombre: "Estudio", color: "#3357FF" }
-    ]);
+    const [categorias, setCategorias] = useState([]);
 
     const prioridades = [
         { id: 'baja', nombre: 'Baja', color: '#4CAF50' },
@@ -44,26 +48,47 @@ export default function AddScreen() {
     ];
 
     useEffect(() => {
-        const getUserData = async () => {
+        const getUserDataAndCategories = async () => {
             try {
                 const userData = await AsyncStorage.getItem('data');
                 if (userData) {
                     const parsedData = JSON.parse(userData);
+
                     setFormData(prev => ({
                         ...prev,
                         usuario_id: parsedData.id
                     }));
 
-                    // Aquí llamarías a tu servicio para obtener categorías
-                    // axios.get(`/categorias?usuario_id=${parsedData.id}`)...
+                    // Cargar categorías del servicio
+                    const categoriasFromAPI = await CategoryService.getByUser(parsedData.id);
+
+                    const categoriasFormateadas = categoriasFromAPI.map(cat => ({
+                        id: cat.id,
+                        nombre: cat.nombre,
+                        color: cat.color || '#327efb'
+                    }));
+
+                    setCategorias(categoriasFormateadas);
+
+                    // Si hay un categoryId en los parámetros, establecerlo en el formData
+                    if (categoryId) {
+                        const categoriaPreseleccionada = categoriasFormateadas.find(cat => cat.id === categoryId);
+                        if (categoriaPreseleccionada) {
+                            setFormData(prev => ({
+                                ...prev,
+                                categoria_id: categoryId,
+                                categoria_nombre: categoriaPreseleccionada.nombre
+                            }));
+                        }
+                    }
                 }
             } catch (error) {
-                console.error('Error al obtener datos:', error);
+                console.error('Error al obtener datos o categorías:', error);
             }
         };
 
-        getUserData();
-    }, []);
+        getUserDataAndCategories();
+    }, [categoryId]);
 
     const handleChange = (name, value, displayValue = null) => {
         setFormData({
@@ -80,13 +105,31 @@ export default function AddScreen() {
         }
     };
 
-    const handleSubmit = () => {
-        const dataToSend = {
-            ...formData,
-            fecha_creacion: new Date()
-        };
-        console.log('Datos a enviar:', dataToSend);
-        // axios.post('/tu-endpoint', dataToSend)...
+    const handleSubmit = async () => {
+        try {
+            const dataToSend = {
+                titulo: formData.titulo,
+                fecha_creacion: new Date().toISOString(), // ISO igual que Postman
+                fecha_vencimiento: formData.fecha_vencimiento.toISOString(),
+                prioridad: formData.prioridad,
+                estado: formData.estado,
+                usuario_id: formData.usuario_id,
+                categoria_id: formData.categoria_id
+            };
+
+            console.log('Datos a enviar:', dataToSend);
+
+            const response = await ActivityService.create(dataToSend);
+            console.log('Respuesta del servidor:', response);
+            showToast({ message: response.mensaje, type: 'success' });
+
+
+            // Si quieres navegar de vuelta después de guardar
+            navigation.goBack();
+
+        } catch (error) {
+            console.error('Error al guardar la actividad:', error);
+        }
     };
 
     const renderPickerItem = (items, selectedId, onSelect, showPicker, setShowPicker) => {
