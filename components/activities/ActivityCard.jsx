@@ -11,7 +11,9 @@ export default function ActivityCard({
     return (
         <TouchableOpacity
             style={[styles.card, completed && styles.completedCard]}
-            onPress={onToggle} // Manejar el toggle al presionar toda la tarjeta
+            onPress={() => {
+              
+            }} 
         >
             <TouchableOpacity 
                 style={[styles.checkboxContainer, { borderColor: color }]}

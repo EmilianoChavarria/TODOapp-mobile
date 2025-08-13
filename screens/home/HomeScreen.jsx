@@ -5,113 +5,140 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import ActivityCard from '../../components/activities/ActivityCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityService } from '../../services/ActivityService'; // Asegúrate de tener esta importación
+import { CategoryService } from '../../services/CategoryService';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
-
   const [name, setName] = useState('');
+  const [userId, setUserId] = useState(null);
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const deleteAsyncStorage = async () => {
+  const [categories, setCategories] = useState([]);
+
+  
+
+  
+
+  const getUserData = async () => {
     try {
-      await AsyncStorage.clear();
-      console.log("AsyncStorage borrado exitosamente");
-      navigation.navigate('Splash'); // Redirigir al login después de borrar
+      const userData = await AsyncStorage.getItem('data');
+      if (userData) {
+        const parsedData = JSON.parse(userData);
+        setUserId(parsedData.id);
+        setName(parsedData.nombre.split(' ')[0] || 'Usuario');
+        return parsedData.id; // Retornamos el ID para usarlo en fetchTodayActivities
+      }
     } catch (error) {
-      console.error("Error al borrar AsyncStorage:", error);
+      console.error('Error al obtener datos:', error);
+    }
+    return null;
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const id = await getUserData();
+      if (id) {
+        const response = await CategoryService.getByUser(id);
+        if (Array.isArray(response)) {
+          setCategories(response.map(cat => ({
+            id: cat.id,
+            name: cat.nombre,
+            activityCount: cat.count || 0,
+            color: cat.color || '#6200ee'
+          })));
+        }
+      }
+    } catch (error) {
+      console.error('Error al obtener categorías:', error);
     }
   };
 
-  // Array de ejemplo para categorías
-  const categories = [
-    {
-      name: "Trabajo",
-      activityCount: 5,
-      color: "#6200ee"
-    },
-    {
-      name: "Personal",
-      activityCount: 3,
-      color: "#4CAF50"
-    },
-    {
-      name: "Estudio",
-      activityCount: 7,
-      color: "#2196F3"
+  const fetchTodayActivities = async () => {
+    try {
+      const id = await getUserData();
+      if (id) {
+        const response = await ActivityService.getToday(id);
+        
+        const todayActivities = Array.isArray(response) 
+          ? response 
+          : response.mensaje 
+            ? [] 
+            : []; 
+  
+        setActivities(todayActivities.map(act => ({
+          id: act.id,
+          title: act.titulo,
+          category: act.categoria_id,
+          color: categories.find(cat => cat.name === act.categoria_id)?.color || '#6200ee',
+          time: act.fecha_vencimiento 
+            ? new Date(act.fecha_vencimiento).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            : 'Sin hora',
+          completed: act.estado === 'completada'
+        })));
+      }
+    } catch (error) {
+      console.error('Error al obtener actividades de hoy:', error);
+      // Mostrar mensaje al usuario si lo deseas
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const [activities, setActivities] = useState([
-    {
-      id: 1,
-      title: "Revisar informe mensual",
-      category: "Trabajo",
-      color: "#6200ee",
-      time: "09:00 AM",
-      completed: false
-    },
-    {
-      id: 2,
-      title: "Ir al gimnasio",
-      category: "Personal",
-      color: "#4CAF50",
-      time: "07:30 AM",
-      completed: true
-    },
-    {
-      id: 3,
-      title: "Estudiar React Native",
-      category: "Estudio",
-      color: "#2196F3",
-      time: "06:00 PM",
-      completed: false
-    },
-    {
-      id: 4,
-      title: "Comprar víveres",
-      category: "Personal",
-      color: "#4CAF50",
-      time: "05:30 PM",
-      completed: false
-    },
-    {
-      id: 5,
-      title: "Llamar a cliente",
-      category: "Trabajo",
-      color: "#6200ee",
-      time: "11:00 AM",
-      completed: true
+  const toggleActivity = async (id) => {
+    try {
+      // Optimistic UI update
+      setActivities(prevActivities =>
+        prevActivities.map(activity =>
+          activity.id === id
+            ? { ...activity, completed: !activity.completed }
+            : activity
+        )
+      );
+      
+      // Llamar al servicio para actualizar en el backend
+      await ActivityService.toggleState(id);
+      
+      // Opcional: recargar datos para asegurar sincronización
+      // fetchTodayActivities();
+    } catch (error) {
+      console.error('Error al cambiar estado:', error);
+      // Revertir cambios si falla
+      setActivities(prevActivities =>
+        prevActivities.map(activity =>
+          activity.id === id
+            ? { ...activity, completed: !activity.completed }
+            : activity
+        )
+      );
     }
-  ]);
-
-  const toggleActivity = (id) => {
-    setActivities(prevActivities =>
-      prevActivities.map(activity =>
-        activity.id === id
-          ? { ...activity, completed: !activity.completed }
-          : activity
-      )
-    );
-
-    // Aquí podrías también guardar el cambio en tu API o AsyncStorage
   };
 
   useEffect(() => {
-    const getUserName = async () => {
-      try {
-        const userData = await AsyncStorage.getItem('data');
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          setName(parsedData.nombre.split(' ')[0] || 'Usuario'
-          );
-        }
-      } catch (error) {
-        console.error('Error al obtener datos:', error);
-      }
+    const loadData = async () => {
+      await getUserData();
+      fetchCategories();
+      await fetchTodayActivities();
     };
+    
+    loadData();
+    
+    // Recargar al enfocar la pantalla
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchTodayActivities();
+    });
+    
+    return unsubscribe;
+  }, [navigation]);
 
-    getUserName();
-  }, []);
-
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Cargando...</Text>
+      </View>
+    );
+  }
 
   return (
     <MainScrollView
@@ -119,19 +146,11 @@ export default function HomeScreen() {
       contentContainerStyle={styles.mainContentContainer}
       showsVerticalScrollIndicator={false}
     >
-
-
-
       {/* Encabezado */}
       <View style={styles.header}>
         <Text style={styles.title}>Hola, {name}!</Text>
       </View>
 
-      {/* <Text onPress={
-        deleteAsyncStorage
-      }>
-        Borrar AsyncStorage
-      </Text> */}
 
       {/* Sección categorías */}
       <View style={styles.section1}>
@@ -161,30 +180,33 @@ export default function HomeScreen() {
       </View>
 
       {/* Sección actividades */}
-      {/* Sección actividades */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>TAREAS PARA HOY</Text>
         <View>
-          {activities.map(activity => (
-            <ActivityCard
-              key={activity.id}
-              title={activity.title}
-              color={activity.color}
-              time={activity.time}
-              completed={activity.completed}
-              onToggle={() => toggleActivity(activity.id)} // Pasar la función de toggle
-            />
-          ))}
+          {activities.length > 0 ? (
+            activities.map(activity => (
+              <ActivityCard
+                key={activity.id}
+                title={activity.title}
+                color={activity.color}
+                time={activity.time}
+                completed={activity.completed}
+                onToggle={() => toggleActivity(activity.id)}
+              />
+            ))
+          ) : (
+            <Text style={styles.noActivitiesText}>No hay tareas para hoy</Text>
+          )}
         </View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.viewMoreButton}
+          onPress={() => navigation.navigate('Activities')}
         >
           <Text style={styles.viewMoreText}>Ver más actividades</Text>
           <Ionicons name="arrow-redo-outline" size={20} color="#327efb" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </MainScrollView>
-
   );
 }
 
@@ -249,4 +271,14 @@ const styles = StyleSheet.create({
     marginRight: 8,
     fontSize: 15,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  noActivitiesText: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#666'
+  }
 });

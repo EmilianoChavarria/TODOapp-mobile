@@ -1,12 +1,21 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function CategoryCard({category}) {
+    const navigation = useNavigation();
+
     return (
         <TouchableOpacity
             style={[styles.card, { backgroundColor: category.color }]}
-            activeOpacity={0.8} // Efecto al presionar
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('CategoryScreen', { 
+                categoryId: category.id,
+                categoryName: category.name,
+                categoryColor: category.color,
+                activityCount: category.activityCount
+            })}
         >
             <Text style={styles.tasks}>{category.activityCount} actividades</Text>
             <Text style={styles.title}>{category.name}</Text>

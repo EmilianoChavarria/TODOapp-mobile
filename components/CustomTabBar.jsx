@@ -31,7 +31,7 @@ export default function CustomTabBar({ state, descriptors, navigation }) {
                 // Íconos para las rutas
                 const iconName = {
                     Inicio: 'home-outline',
-                    Calendar: 'calendar-outline',
+                    Categorias: 'shapes-outline',
                     Add: 'add-circle-outline',
                     Buscar: 'search-outline',
                     Perfil: 'person-circle-outline',

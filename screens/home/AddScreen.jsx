@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from "@react-native-picker/picker";
+import { useNavigation } from "@react-navigation/native";
 
 export default function AddScreen() {
+    const navigation = useNavigation();
     const [formData, setFormData] = useState({
         titulo: '',
         fecha_vencimiento: new Date(),
@@ -14,7 +16,7 @@ export default function AddScreen() {
         categoria_id: null,
         categoria_nombre: ''
     });
-    
+
     const [showDatePicker, setShowDatePicker] = useState({
         vencimiento: false
     });
@@ -22,7 +24,7 @@ export default function AddScreen() {
     const [showCategoryPicker, setShowCategoryPicker] = useState(false);
     const [showPriorityPicker, setShowPriorityPicker] = useState(false);
     const [showStatusPicker, setShowStatusPicker] = useState(false);
-    
+
     // Datos de ejemplo
     const [categorias, setCategorias] = useState([
         { id: 1, nombre: "Trabajo", color: "#FF5733" },
@@ -51,7 +53,7 @@ export default function AddScreen() {
                         ...prev,
                         usuario_id: parsedData.id
                     }));
-                    
+
                     // Aquí llamarías a tu servicio para obtener categorías
                     // axios.get(`/categorias?usuario_id=${parsedData.id}`)...
                 }
@@ -89,10 +91,10 @@ export default function AddScreen() {
 
     const renderPickerItem = (items, selectedId, onSelect, showPicker, setShowPicker) => {
         const selectedItem = items.find(item => item.id === selectedId);
-        
+
         return (
             <>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.customPicker}
                     onPress={() => setShowPicker(true)}
                 >
@@ -115,11 +117,14 @@ export default function AddScreen() {
                 >
                     <View style={styles.modalContainer}>
                         <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>
+                                Selecciona una opción:
+                            </Text>
                             <FlatList
                                 data={items}
                                 keyExtractor={(item) => item.id.toString()}
                                 renderItem={({ item }) => (
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         style={styles.pickerItem}
                                         onPress={() => {
                                             onSelect(item.id, item.nombre);
@@ -131,12 +136,23 @@ export default function AddScreen() {
                                     </TouchableOpacity>
                                 )}
                             />
-                            <TouchableOpacity 
-                                style={styles.closeButton}
-                                onPress={() => setShowPicker(false)}
-                            >
-                                <Text style={styles.closeButtonText}>Cancelar</Text>
-                            </TouchableOpacity>
+                            <View style={styles.buttonContainer}>
+                                <TouchableOpacity
+                                    style={styles.closeButton}
+                                    onPress={() => {
+                                        setShowPicker(false);
+                                        navigation.navigate('AddCategory')
+                                    }}
+                                >
+                                    <Text style={styles.closeButtonText}>Registrar nueva</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.closeButton}
+                                    onPress={() => setShowPicker(false)}
+                                >
+                                    <Text style={styles.closeRedButtonText}>Cancelar</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                 </Modal>
@@ -168,7 +184,7 @@ export default function AddScreen() {
                     {/* Fecha de Vencimiento */}
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputName}>Fecha de vencimiento:</Text>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.dateInput}
                             onPress={() => setShowDatePicker({ vencimiento: true })}
                         >
@@ -212,16 +228,8 @@ export default function AddScreen() {
                         )}
                     </View>
 
-                    {/* Mostrar ID de usuario */}
-                    {formData.usuario_id && (
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.inputName}>Tu ID de usuario:</Text>
-                            <Text style={styles.userIdText}>{formData.usuario_id}</Text>
-                        </View>
-                    )}
-
                     {/* Botón de Envío */}
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={[styles.submitButton, (!formData.usuario_id || !formData.categoria_id) && styles.submitButtonDisabled]}
                         onPress={handleSubmit}
                         disabled={!formData.usuario_id || !formData.categoria_id}
@@ -351,6 +359,11 @@ const styles = StyleSheet.create({
         padding: 20,
         maxHeight: '80%',
     },
+    modalTitle: {
+        fontSize: 18,
+        fontFamily: 'GoogleSans-Medium',
+        marginBottom: 15,
+    },
     pickerItem: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -363,6 +376,11 @@ const styles = StyleSheet.create({
         fontFamily: 'GoogleSans-Regular',
         marginLeft: 10,
     },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 15,
+    },
     closeButton: {
         marginTop: 15,
         padding: 10,
@@ -373,4 +391,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontFamily: 'GoogleSans-Medium',
     },
+    // close red button text
+    closeRedButtonText: {
+        color: '#F44336',
+        fontSize: 16,
+        fontFamily: 'GoogleSans-Medium',
+    },
+
+
 });

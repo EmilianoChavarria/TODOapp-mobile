@@ -9,6 +9,10 @@ import LoginScreen from './screens/auth/LoginScreen';
 import RegisterScreen from './screens/auth/RegisterScreen';
 import MainTabs from './screens/tabs/MainTabs';
 import { ToastProvider } from './components/ToastContext';
+import CategoriesScreen from './screens/home/categories/CategoriesScreen';
+import AddCategory from './screens/home/categories/AddCategory';
+import CategoryScreen from './screens/home/categories/CategoryScreen';
+import ActivityHistory from './screens/home/activities/ActivityHistory';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +41,10 @@ export default function App() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
           <Stack.Screen name="Home" component={MainTabs} />
+          <Stack.Screen name="Categories" component={CategoriesScreen} />
+          <Stack.Screen name="AddCategory" component={AddCategory} />
+          <Stack.Screen name="CategoryScreen" component={CategoryScreen} />
+          <Stack.Screen name="ActivityHistory" component={ActivityHistory} />
         </Stack.Navigator>
       </NavigationContainer>
     </ToastProvider>
