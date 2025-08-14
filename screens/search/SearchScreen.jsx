@@ -38,17 +38,14 @@ export default function SearchScreen() {
 
                 const mapped = Array.isArray(response)
                     ? response.map(act => ({
-                        id: act.id,
+                        ...act, // Esto trae todo: id, titulo, descripcion, fecha_vencimiento, etc.
                         title: act.titulo,
                         category: act.categoria_id,
-                        color: "#327efb", // color genérico
+                        color: act.color || '#6200ee',
                         time: act.fecha_vencimiento
-                            ? new Date(act.fecha_vencimiento).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                            })
-                            : "Sin hora",
-                        completed: act.estado === "completada",
+                            ? new Date(act.fecha_vencimiento).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : 'Sin hora',
+                        completed: act.estado === 'completada'
                     }))
                     : [];
 

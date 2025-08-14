@@ -134,5 +134,48 @@ export const ActivityService = {
             console.error(`Error al obtener tareas completadas del usuario ${usuarioId}:`, error);
             throw error;
         }
+    },
+
+    getByActivity: async (actividadId) => {
+        try {
+            const response = await fetch(`${URL}/subtareas/activity/${actividadId}`);
+            
+            return await response.json();
+        } catch (error) {
+            console.error(`Error al obtener subactividades de la actividad ${actividadId}:`, error);
+            throw error;
+        }
+    },
+
+    savesubActivity: async (subActivityData) => {
+        try {
+            const response = await fetch(`${URL}/subtareas/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(subActivityData),
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Error al crear subactividad:', error);
+            throw error;
+        }
+    },
+    toggleSubActivity: async (subActivityId) => {
+        try {
+            const response = await fetch(`${URL}/subtareas/${subActivityId}/toggle`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            return await response.json();
+        } catch (error) {
+            console.error(`Error al cambiar estado de la subactividad con ID ${subActivityId}:`, error);
+            throw error;
+        }
     }
 };

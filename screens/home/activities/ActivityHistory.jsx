@@ -37,14 +37,15 @@ export default function ActivityHistory() {
                 const activities = Array.isArray(response) ? response : [];
 
                 setCompletedActivities(activities.map(act => ({
-                    id: act.id,
+                    ...act, // Esto trae todo: id, titulo, descripcion, fecha_vencimiento, etc.
                     title: act.titulo,
                     category: act.categoria_id,
-                    color: getCategoryColor(act.categoria_id),
-                    time: act.fecha_completado ?
-                        new Date(act.fecha_completado).toLocaleDateString() : 'Sin fecha',
-                    completed: true
-                })));
+                    color: act.color || '#6200ee',
+                    time: act.fecha_vencimiento
+                      ? new Date(act.fecha_vencimiento).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : 'Sin hora',
+                    completed: act.estado === 'completada'
+                  })));
             }
         } catch (error) {
             console.error('Error al obtener actividades completadas:', error);

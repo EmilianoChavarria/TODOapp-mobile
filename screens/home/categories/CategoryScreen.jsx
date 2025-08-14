@@ -48,16 +48,17 @@ export default function CategoryScreen() {
                     ? response
                     : [];
 
-                setActivities(categoryActivities.map(act => ({
-                    id: act.id,
-                    title: act.titulo,
-                    category: act.categoria_id,
-                    color: categoryColor, // Usamos el color de la categoría
-                    time: act.fecha_vencimiento
-                        ? new Date(act.fecha_vencimiento).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : 'Sin hora',
-                    completed: act.estado === 'completada'
-                })));
+                    setActivities(categoryActivities.map(act => ({
+                        ...act, // Esto trae todo: id, titulo, descripcion, fecha_vencimiento, etc.
+                        title: act.titulo,
+                        category: act.categoria_id,
+                        color: act.color || '#6200ee',
+                        time: act.fecha_vencimiento
+                          ? new Date(act.fecha_vencimiento).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                          : 'Sin hora',
+                        completed: act.estado === 'completada'
+                      })));
+                    
             }
         } catch (error) {
             console.error('Error al obtener actividades de la categoría:', error);
